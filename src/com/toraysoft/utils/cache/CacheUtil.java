@@ -11,6 +11,7 @@ public class CacheUtil {
 
 	ACache mACache;
 	private static int DEFAULT_SAVETIME = 60 * 60 * 2;
+	String typePrefix = "Cache_type_";
 
 	public CacheUtil(File cacheDir) {
 		mACache = ACache.get(cacheDir);
@@ -80,6 +81,31 @@ public class CacheUtil {
 		if (mACache != null) {
 			key = key.hashCode() + "";
 			return mACache.getAsBitmap(key);
+		}
+		return null;
+	}
+
+	// save json cache
+	public void putJSONCache(String key, Object val) {
+		key = key.hashCode() + "";
+		if (val instanceof JSONArray) {
+			putJSONArrayCache(key, (JSONArray) val);
+			putStringCache(typePrefix + key, "0");
+		} else {
+			putJSONObjectCache(key, (JSONObject) val);
+			putStringCache(typePrefix + key, "1");
+		}
+	}
+
+	// get jsonArray cache
+	public Object getJSONCache(String key) {
+		if (mACache != null) {
+			key = key.hashCode() + "";
+			if ("0".equals(getStringCache(typePrefix + key))) {
+				return getJSONArrayCache(key);
+			} else {
+				return getJSONObjectCache(key);
+			}
 		}
 		return null;
 	}

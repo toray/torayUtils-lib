@@ -18,19 +18,27 @@ import com.toraysoft.utils.cache.CacheUtil;
 
 public class ImageUtil {
 	static ImageUtil mImageManager;
-	ImageLoader mImageLoader;
+	static ImageLoader mImageLoader;
 	Map<String, NetworkImageView> tasks = new HashMap<String, NetworkImageView>();
 	static boolean isLock;
-	BitmapLruCache mBitmapLruCache;
+	static BitmapLruCache mBitmapLruCache;
 
 	Context context;
 	static CacheUtil cacheUtil;
 
-	public ImageUtil(Context context) {
-		cacheUtil = new CacheUtil(context.getExternalCacheDir());
-		mBitmapLruCache = new BitmapLruCache();
-		mImageLoader = new ImageLoader(Volley.newRequestQueue(context),
-				mBitmapLruCache);
+	private ImageUtil() {
+	}
+
+	public static ImageUtil get(Context context) {
+		if (mImageManager == null) {
+			mImageManager = new ImageUtil();
+			cacheUtil = new CacheUtil(context.getApplicationContext()
+					.getExternalCacheDir());
+			mBitmapLruCache = new BitmapLruCache();
+			mImageLoader = new ImageLoader(Volley.newRequestQueue(context
+					.getApplicationContext()), mBitmapLruCache);
+		}
+		return mImageManager;
 	}
 
 	public ImageLoader getImageLoader() {
