@@ -1,10 +1,17 @@
 package com.toraysoft.utils.image;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v4.util.LruCache;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -94,7 +101,85 @@ public class ImageUtil {
 		}
 
 	}
+	
+	/**
+	 * 图库工具选择界面
+	 * 
+	 * @return Intent
+	 */
+	public static Intent getImageChooserIntent(String title) {
+		Intent intent = Intent.createChooser(getMediaImageIntent(), title);
+		return intent;
+	}
 
+	/**
+	 * 开启本地图片库
+	 * 
+	 * @return Intent
+	 */
+	private static Intent getMediaImageIntent() {
+		Intent intent = new Intent("android.intent.action.PICK");
+		Uri uri = MediaStore.Images.Media.INTERNAL_CONTENT_URI;
+		intent.setDataAndType(uri, "image/*");
+		return intent;
+	}
+	
+	/**
+	 * 开启照相机
+	 * 
+	 * @return Intent
+	 */
+	public static Intent getTakePhotoIntent() {
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//		intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri());
+		return intent;
+	}
+	
+	/**
+	 * 拍照工具选择界面
+	 * 
+	 * @return Intent
+	 */
+	public static Intent getTaskPhotoIntent(String title) {
+		Intent intent = Intent.createChooser(getTakePhotoIntent(), title);
+		return intent;
+	}
+	
+	/**
+	 * 裁剪图片
+	 * @param fromFile
+	 * @return
+	 */
+	public static Intent getCutImageIntent(Uri uri, int w, int h) {
+//		try {
+//			ContentResolver resolver = context.getContentResolver(); 
+//			InputStream inStream = resolver.openInputStream(uri);
+//			BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+//			Bitmap bm = BitmapFactory.decodeStream(inStream, null, bitmapOptions); 
+//			
+//			return cutImage(bm, w, h);
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		}
+		Intent intent = new Intent("com.android.camera.action.CROP");
+		intent.setDataAndType(uri, "image/*");
+		intent.putExtra("crop", "true");
+		intent.putExtra("aspectX", 1);
+		intent.putExtra("aspectY", 1);
+		intent.putExtra("outputX", w);
+		intent.putExtra("outputY", h);
+		intent.putExtra("scale", true);
+		intent.putExtra("return-data", true);
+		return intent;
+//		bitmapOptions.inJustDecodeBounds = true; 
+//		BitmapFactory.decodeStream(inStream,null,bitmapOptions);
+//		BitmapFactory.Options bitmapOptions2 = new BitmapFactory.Options();
+//		bitmapOptions2.inSampleSize=bitmapOptions.outHeight/Env.get().getScreenWidth();
+//		bitmapOptions2.inJustDecodeBounds = false;
+//		inStream = resolver.openInputStream(uri);
+//		Bitmap bm2 = BitmapFactory.decodeStream(inStream, null, bitmapOptions2);
+	}
+	
 	public void getImageBitmap(String url, ImageListener l) {
 		mImageLoader.get(url, l);
 	}
