@@ -1,15 +1,15 @@
 package com.toraysoft.utils.image;
 
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.util.LruCache;
@@ -180,10 +180,48 @@ public class ImageUtil {
 //		Bitmap bm2 = BitmapFactory.decodeStream(inStream, null, bitmapOptions2);
 	}
 	
+	/**
+	 * 获取网络图片
+	 * @param url
+	 * @param l
+	 */
 	public void getImageBitmap(String url, ImageListener l) {
 		mImageLoader.get(url, l);
 	}
-
+	
+	/**
+	 * 保存图片
+	 * @param url
+	 * @param l
+	 */
+	public static Uri saveImageBitmap(Bitmap bitmap, File dir) {
+		File file = new File(dir , System.currentTimeMillis() + ".jpg");
+		FileOutputStream fileOutputStream = null;
+		try {
+			fileOutputStream = new FileOutputStream(file);
+			if (bitmap != null) {
+				if (bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)) {
+					fileOutputStream.flush();
+//					fileOutputStream.close();
+					return Uri.fromFile(file);
+				}
+			}
+		} catch (FileNotFoundException e) {
+			file.delete();
+			e.printStackTrace();
+		} catch (IOException e) {
+			file.delete();
+			e.printStackTrace();
+		} finally{
+			try {
+				fileOutputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	} 
+	
 	public void putTask(NetworkImageView iv, String image) {
 		Bitmap bitmap = mBitmapLruCache.get(image);
 		if (isLock && (bitmap == null || bitmap.isRecycled())) {
