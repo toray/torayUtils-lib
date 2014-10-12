@@ -252,7 +252,7 @@ public class ACache {
 			JSONObject obj = new JSONObject(JSONString);
 			return obj;
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			return null;
 		}
 	}
@@ -298,7 +298,7 @@ public class ACache {
 			JSONArray obj = new JSONArray(JSONString);
 			return obj;
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			return null;
 		}
 	}
