@@ -2,6 +2,7 @@ package com.toraysoft.utils.format;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -130,5 +131,22 @@ public class TimeUtil {
 	    SimpleDateFormat format = new SimpleDateFormat("MM月dd日 HH:mm");  
 	    String time = format.format(date); 
 	    return time;  
+	}
+	
+	public static Date parseSimpleStr2Date(String date) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			return sdf.parse(date);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static String parseDate2Str(int year,int month,int day) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar mCalendar = Calendar.getInstance();
+		mCalendar.set(year, month, day);
+		return sdf.format(mCalendar.getTime());
 	}
 }
