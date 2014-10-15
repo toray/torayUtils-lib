@@ -99,6 +99,24 @@ public class TimeUtil {
 		return timeStr;
 	}
 	
+	public static String converTimeSecond(long timestamp) {
+		long currentSeconds = System.currentTimeMillis() / 1000 - 28800;
+		long timeGap = currentSeconds - timestamp;// 与现在时间相差秒数
+		String timeStr = null;
+		if (timeGap > 7* 24 * 60 *60){
+			timeStr = getDateTimeByMillisecond(timestamp);//几月几号
+		} else if (timeGap > 24 * 60 * 60) {// 1天以上
+			timeStr = timeGap / (24 * 60 * 60) + "天前";
+		} else if (timeGap > 60 * 60) {// 1小时-24小时
+			timeStr = timeGap / (60 * 60) + "小时前";
+		} else if (timeGap > 60) {// 1分钟-59分钟
+			timeStr = timeGap / 60 + "分钟前";
+		} else {// 1秒钟-59秒钟
+			timeStr = timeGap + "秒前";
+		}
+		return timeStr;
+	}
+	
 	//几月几号
 	@SuppressLint("SimpleDateFormat")
 	public static String getDateTimeByMillisecond(long str) {  
