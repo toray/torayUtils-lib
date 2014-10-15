@@ -149,4 +149,12 @@ public class TimeUtil {
 		mCalendar.set(year, month, day);
 		return sdf.format(mCalendar.getTime());
 	}
+	
+	public static String parseSec2Min(int sec){
+		String min = "";
+		min += sec/60>=10? sec/60:"0"+sec/60;
+		min += ":";
+		min += sec%60>=10? sec%60:"0"+sec%60;
+		return min;
+	}
 }
