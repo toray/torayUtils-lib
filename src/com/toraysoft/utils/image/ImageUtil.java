@@ -437,6 +437,7 @@ public class ImageUtil {
 				break;
 			case OnScrollListener.SCROLL_STATE_IDLE:
 				isLock = false;
+				get(view.getContext()).doTask();
 				break;
 			default:
 				break;
