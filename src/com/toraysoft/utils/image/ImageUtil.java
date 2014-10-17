@@ -15,54 +15,90 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.net.Uri;
+import android.net.http.AndroidHttpClient;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.animation.Animation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.ImageView;
 
+import com.android.volley.Network;
+import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HttpClientStack;
+import com.android.volley.toolbox.HttpStack;
+import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageCache;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.android.volley.toolbox.ImageLoader.ImageListener;
-import com.android.volley.toolbox.NetworkImageView;
-import com.android.volley.toolbox.Volley;
 import com.toraysoft.utils.cache.CacheUtil;
 
 public class ImageUtil {
 	static ImageUtil mImageManager;
 	static ImageLoader mImageLoader;
-	Map<String, NetworkImageView> tasks = new HashMap<String, NetworkImageView>();
+	Map<String, ImageView> tasks = new HashMap<String, ImageView>();
 	static boolean isLock;
 	static BitmapLruCache mBitmapLruCache;
 
-	Context context;
+	Context mContext;
 	static CacheUtil cacheUtil;
 
-	private ImageUtil() {
+	Animation animation;
+
+	private ImageUtil(Context context) {
+		this.mContext = context;
 	}
 
 	public static ImageUtil get(Context context) {
 		if (mImageManager == null) {
-			mImageManager = new ImageUtil();
+			mImageManager = new ImageUtil(context);
 			cacheUtil = new CacheUtil(context.getApplicationContext()
 					.getExternalCacheDir());
 			mBitmapLruCache = new BitmapLruCache();
-			mImageLoader = new ImageLoader(Volley.newRequestQueue(context
-					.getApplicationContext()), mBitmapLruCache);
 		}
 		return mImageManager;
 	}
 
 	public ImageLoader getImageLoader() {
+		if (mImageLoader == null) {
+
+			File cacheDir = new File(mContext.getCacheDir(), "temp");
+
+			HttpStack stack = null;
+			if (Build.VERSION.SDK_INT >= 9) {
+				stack = new HurlStack();
+			} else {
+				// Prior to Gingerbread, HttpUrlConnection was unreliable.
+				// See:
+				// http://android-developers.blogspot.com/2011/09/androids-http-clients.html
+				stack = new HttpClientStack(
+						AndroidHttpClient.newInstance("TorayImage"));
+			}
+
+			Network network = new BasicNetwork(stack);
+			RequestQueue queue = new RequestQueue(new DiskBasedCache(cacheDir),
+					network, 5);
+			queue.start();
+
+			// mImageLoader = new ImageLoader(Volley.newRequestQueue(context
+			// .getApplicationContext()), mBitmapLruCache);
+
+			mImageLoader = new ImageLoader(queue, mBitmapLruCache);
+
+		}
 		return mImageLoader;
 	}
 
@@ -115,7 +151,7 @@ public class ImageUtil {
 		}
 
 	}
-	
+
 	/**
 	 * 图库工具选择界面
 	 * 
@@ -137,7 +173,7 @@ public class ImageUtil {
 		intent.setDataAndType(uri, "image/*");
 		return intent;
 	}
-	
+
 	/**
 	 * 开启照相机
 	 * 
@@ -145,10 +181,10 @@ public class ImageUtil {
 	 */
 	public static Intent getTakePhotoIntent() {
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//		intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri());
+		// intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri());
 		return intent;
 	}
-	
+
 	/**
 	 * 拍照工具选择界面
 	 * 
@@ -158,23 +194,25 @@ public class ImageUtil {
 		Intent intent = Intent.createChooser(getTakePhotoIntent(), title);
 		return intent;
 	}
-	
+
 	/**
 	 * 裁剪图片
+	 * 
 	 * @param fromFile
 	 * @return
 	 */
 	public static Intent getCutImageIntent(Uri uri, int w, int h) {
-//		try {
-//			ContentResolver resolver = context.getContentResolver(); 
-//			InputStream inStream = resolver.openInputStream(uri);
-//			BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-//			Bitmap bm = BitmapFactory.decodeStream(inStream, null, bitmapOptions); 
-//			
-//			return cutImage(bm, w, h);
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		}
+		// try {
+		// ContentResolver resolver = context.getContentResolver();
+		// InputStream inStream = resolver.openInputStream(uri);
+		// BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+		// Bitmap bm = BitmapFactory.decodeStream(inStream, null,
+		// bitmapOptions);
+		//
+		// return cutImage(bm, w, h);
+		// } catch (FileNotFoundException e) {
+		// e.printStackTrace();
+		// }
 		Intent intent = new Intent("com.android.camera.action.CROP");
 		intent.setDataAndType(uri, "image/*");
 		intent.putExtra("crop", "true");
@@ -185,37 +223,45 @@ public class ImageUtil {
 		intent.putExtra("scale", true);
 		intent.putExtra("return-data", true);
 		return intent;
-//		bitmapOptions.inJustDecodeBounds = true; 
-//		BitmapFactory.decodeStream(inStream,null,bitmapOptions);
-//		BitmapFactory.Options bitmapOptions2 = new BitmapFactory.Options();
-//		bitmapOptions2.inSampleSize=bitmapOptions.outHeight/Env.get().getScreenWidth();
-//		bitmapOptions2.inJustDecodeBounds = false;
-//		inStream = resolver.openInputStream(uri);
-//		Bitmap bm2 = BitmapFactory.decodeStream(inStream, null, bitmapOptions2);
+		// bitmapOptions.inJustDecodeBounds = true;
+		// BitmapFactory.decodeStream(inStream,null,bitmapOptions);
+		// BitmapFactory.Options bitmapOptions2 = new BitmapFactory.Options();
+		// bitmapOptions2.inSampleSize=bitmapOptions.outHeight/Env.get().getScreenWidth();
+		// bitmapOptions2.inJustDecodeBounds = false;
+		// inStream = resolver.openInputStream(uri);
+		// Bitmap bm2 = BitmapFactory.decodeStream(inStream, null,
+		// bitmapOptions2);
 	}
-	
+
 	/**
 	 * 获取网络图片
+	 * 
 	 * @param url
 	 * @param l
 	 */
 	public void getImageBitmap(String url, ImageListener l) {
-		mImageLoader.get(url, l);
+		getImageLoader().get(url, l);
 	}
-	
-	public void getRoundImageBitmap(final String url,final CustomImageListener l){
-		mImageLoader.get(url, new ImageListener() {
-			
+
+	public void getImageBitmap(String url, ImageListener l, int max_width,
+			int max_height) {
+		getImageLoader().get(url, l, max_width, max_height);
+	}
+
+	public void getRoundImageBitmap(final String url,
+			final CustomImageListener l) {
+		getImageLoader().get(url, new ImageListener() {
+
 			@Override
 			public void onErrorResponse(VolleyError error) {
-				if(l!=null)
+				if (l != null)
 					l.onErrorResponse(error);
 			}
-			
+
 			@Override
 			public void onResponse(ImageContainer response, boolean isImmediate) {
-				if(response!=null && response.getBitmap()!=null){
-					if(l!=null){
+				if (response != null && response.getBitmap() != null) {
+					if (l != null) {
 						Bitmap bitmap = cutRoundBitmap(response.getBitmap());
 						l.onResponse(bitmap);
 					}
@@ -223,28 +269,30 @@ public class ImageUtil {
 			}
 		});
 	}
-	
-	public void getCornersImageBitmap(final String url,final float corners,final CustomImageListener l){
-		mImageLoader.get(url, new ImageListener() {
-			
+
+	public void getCornersImageBitmap(final String url, final float corners,
+			final CustomImageListener l) {
+		getImageLoader().get(url, new ImageListener() {
+
 			@Override
 			public void onErrorResponse(VolleyError error) {
-				if(l!=null)
+				if (l != null)
 					l.onErrorResponse(error);
 			}
-			
+
 			@Override
 			public void onResponse(ImageContainer response, boolean isImmediate) {
-				if(response!=null && response.getBitmap()!=null){
-					if(l!=null){
-						Bitmap bitmap = cutCornersBitmap(response.getBitmap(),corners);
+				if (response != null && response.getBitmap() != null) {
+					if (l != null) {
+						Bitmap bitmap = cutCornersBitmap(response.getBitmap(),
+								corners);
 						l.onResponse(bitmap);
 					}
 				}
 			}
 		});
 	}
-	
+
 	/**
 	 * 转换图片成圆形
 	 * 
@@ -253,7 +301,7 @@ public class ImageUtil {
 	 * @return
 	 */
 	public static Bitmap cutRoundBitmap(Bitmap bitmap) {
-		if(bitmap==null)
+		if (bitmap == null)
 			return null;
 		int width = bitmap.getWidth();
 		int height = bitmap.getHeight();
@@ -294,8 +342,10 @@ public class ImageUtil {
 		Canvas canvas = new Canvas(output);
 
 		final Paint paint = new Paint();
-		final Rect src = new Rect((int) left, (int) top, (int) right, (int) bottom);
-		final Rect dst = new Rect((int) dst_left, (int) dst_top, (int) dst_right, (int) dst_bottom);
+		final Rect src = new Rect((int) left, (int) top, (int) right,
+				(int) bottom);
+		final Rect dst = new Rect((int) dst_left, (int) dst_top,
+				(int) dst_right, (int) dst_bottom);
 		final RectF rectF = new RectF(dst);
 
 		paint.setAntiAlias(true);// 设置画笔无锯齿
@@ -311,7 +361,7 @@ public class ImageUtil {
 
 		return output;
 	}
-	
+
 	/**
 	 * 转换图片成圆形
 	 * 
@@ -319,15 +369,15 @@ public class ImageUtil {
 	 *            传入Bitmap对象
 	 * @return
 	 */
-	public static Bitmap cutCornersBitmap(Bitmap bitmap,float corners) {
-		if(bitmap==null)
+	public static Bitmap cutCornersBitmap(Bitmap bitmap, float corners) {
+		if (bitmap == null)
 			return null;
 		int width = bitmap.getWidth();
 		int height = bitmap.getHeight();
 		float roundPx = corners;
 		float left, top, right, bottom, dst_left, dst_top, dst_right, dst_bottom;
 		if (width <= height) {
-//			roundPx = width / 2;
+			// roundPx = width / 2;
 
 			left = 0;
 			top = 0;
@@ -341,7 +391,7 @@ public class ImageUtil {
 			dst_right = width;
 			dst_bottom = width;
 		} else {
-//			roundPx = height / 2;
+			// roundPx = height / 2;
 
 			float clip = (width - height) / 2;
 
@@ -361,8 +411,10 @@ public class ImageUtil {
 		Canvas canvas = new Canvas(output);
 
 		final Paint paint = new Paint();
-		final Rect src = new Rect((int) left, (int) top, (int) right, (int) bottom);
-		final Rect dst = new Rect((int) dst_left, (int) dst_top, (int) dst_right, (int) dst_bottom);
+		final Rect src = new Rect((int) left, (int) top, (int) right,
+				(int) bottom);
+		final Rect dst = new Rect((int) dst_left, (int) dst_top,
+				(int) dst_right, (int) dst_bottom);
 		final RectF rectF = new RectF(dst);
 
 		paint.setAntiAlias(true);// 设置画笔无锯齿
@@ -378,21 +430,23 @@ public class ImageUtil {
 
 		return output;
 	}
-	
+
 	/**
 	 * 保存图片
+	 * 
 	 * @param url
 	 * @param l
 	 */
 	public static Uri saveImageBitmap(Bitmap bitmap, File dir) {
-		File file = new File(dir , System.currentTimeMillis() + ".jpg");
+		File file = new File(dir, System.currentTimeMillis() + ".jpg");
 		FileOutputStream fileOutputStream = null;
 		try {
 			fileOutputStream = new FileOutputStream(file);
 			if (bitmap != null) {
-				if (bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)) {
+				if (bitmap.compress(Bitmap.CompressFormat.PNG, 100,
+						fileOutputStream)) {
 					fileOutputStream.flush();
-//					fileOutputStream.close();
+					// fileOutputStream.close();
 					return Uri.fromFile(file);
 				}
 			}
@@ -402,7 +456,7 @@ public class ImageUtil {
 		} catch (IOException e) {
 			file.delete();
 			e.printStackTrace();
-		} finally{
+		} finally {
 			try {
 				fileOutputStream.close();
 			} catch (IOException e) {
@@ -410,20 +464,66 @@ public class ImageUtil {
 			}
 		}
 		return null;
-	} 
-	
-	public void putTask(NetworkImageView iv, String image) {
+	}
+
+	public void setAnimation(Animation anim) {
+		this.animation = anim;
+	}
+
+	public void putTask(final ImageView iv, String image) {
 		Bitmap bitmap = mBitmapLruCache.get(image);
 		if (isLock && (bitmap == null || bitmap.isRecycled())) {
 			tasks.put(image, iv);
 		} else {
-			iv.setImageUrl(image, getImageLoader());
+			getImageBitmap(image, new ImageListener() {
+
+				@Override
+				public void onErrorResponse(VolleyError error) {
+				}
+
+				@Override
+				public void onResponse(ImageContainer response,
+						boolean isImmediate) {
+					Log.e("test", "====2====" + response);
+					if (response != null) {
+						iv.setImageBitmap(response.getBitmap());
+						if (animation != null)
+							iv.startAnimation(animation);
+					}
+				}
+			});
+
+			// if (animation != null)
+			// iv.setAnimation(animation);
+			// iv.setImageUrl(image, getImageLoader());
 		}
 	}
 
 	public void doTask() {
 		for (String image : tasks.keySet()) {
-			tasks.get(image).setImageUrl(image, getImageLoader());
+			final String img = image;
+			getImageBitmap(image, new ImageListener() {
+
+				@Override
+				public void onErrorResponse(VolleyError error) {
+				}
+
+				@Override
+				public void onResponse(ImageContainer response,
+						boolean isImmediate) {
+					Log.e("test", "====1====" + response.getBitmap());
+					if (response != null && response.getBitmap() != null
+							&& tasks.get(img) != null) {
+						tasks.get(img).setImageBitmap(response.getBitmap());
+						if (animation != null)
+							tasks.get(img).startAnimation(animation);
+					}
+				}
+			});
+
+			// if (animation != null)
+			// tasks.get(image).setAnimation(animation);
+			// tasks.get(image).setImageUrl(image, getImageLoader());
 		}
 		tasks.clear();
 	}
@@ -456,10 +556,10 @@ public class ImageUtil {
 		}
 
 	}
-	
-	public interface CustomImageListener{
+
+	public interface CustomImageListener {
 		public void onErrorResponse(VolleyError error);
-		
+
 		public void onResponse(Bitmap bitmap);
 	}
 	
