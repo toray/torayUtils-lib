@@ -245,22 +245,7 @@ public class ImageUtil {
 	
 	public void getImageSmallBitmap(String url, final ImageListener l) {
 		final String u = (url.indexOf("img.diange.fm"))==-1? url:url+"!m";
-		getImageLoader().get(u, new ImageListener() {
-			
-			@Override
-			public void onErrorResponse(VolleyError error) {
-				
-			}
-			
-			@Override
-			public void onResponse(ImageContainer response, boolean isImmediate) {
-				if(response==null || response.getBitmap()==null){
-					getImageLoader().get(u,l);
-				}else{
-					l.onResponse(response, isImmediate);
-				}
-			}
-		});
+		getImageLoader().get(u,l);
 	}
 	
 	public void getImageBitmap(String url, ImageListener l, int max_width,
