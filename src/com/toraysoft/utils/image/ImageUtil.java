@@ -44,6 +44,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageCache;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.android.volley.toolbox.ImageLoader.ImageListener;
+import com.android.volley.toolbox.Volley;
 import com.toraysoft.utils.cache.CacheUtil;
 
 public class ImageUtil {
@@ -75,28 +76,28 @@ public class ImageUtil {
 	public ImageLoader getImageLoader() {
 		if (mImageLoader == null) {
 
-			File cacheDir = new File(mContext.getCacheDir(), "temp");
+//			File cacheDir = new File(mContext.getCacheDir(), "temp");
+//
+//			HttpStack stack = null;
+//			if (Build.VERSION.SDK_INT >= 9) {
+//				stack = new HurlStack();
+//			} else {
+//				// Prior to Gingerbread, HttpUrlConnection was unreliable.
+//				// See:
+//				// http://android-developers.blogspot.com/2011/09/androids-http-clients.html
+//				stack = new HttpClientStack(
+//						AndroidHttpClient.newInstance("TorayImage"));
+//			}
+//
+//			Network network = new BasicNetwork(stack);
+//			RequestQueue queue = new RequestQueue(new DiskBasedCache(cacheDir),
+//					network, 5);
+//			queue.start();
 
-			HttpStack stack = null;
-			if (Build.VERSION.SDK_INT >= 9) {
-				stack = new HurlStack();
-			} else {
-				// Prior to Gingerbread, HttpUrlConnection was unreliable.
-				// See:
-				// http://android-developers.blogspot.com/2011/09/androids-http-clients.html
-				stack = new HttpClientStack(
-						AndroidHttpClient.newInstance("TorayImage"));
-			}
+			 mImageLoader = new ImageLoader(Volley.newRequestQueue(mContext
+			 .getApplicationContext()), mBitmapLruCache);
 
-			Network network = new BasicNetwork(stack);
-			RequestQueue queue = new RequestQueue(new DiskBasedCache(cacheDir),
-					network, 5);
-			queue.start();
-
-			// mImageLoader = new ImageLoader(Volley.newRequestQueue(context
-			// .getApplicationContext()), mBitmapLruCache);
-
-			mImageLoader = new ImageLoader(queue, mBitmapLruCache);
+//			mImageLoader = new ImageLoader(queue, mBitmapLruCache);
 
 		}
 		return mImageLoader;
