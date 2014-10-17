@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import android.annotation.SuppressLint;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,7 +14,6 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff.Mode;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -28,6 +27,7 @@ import android.view.animation.Animation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ImageView;
+
 import com.android.volley.Network;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
@@ -238,7 +238,12 @@ public class ImageUtil {
 	public void getImageBitmap(String url, ImageListener l) {
 		getImageLoader().get(url, l);
 	}
-
+	
+	public void getImageSmallBitmap(String url, ImageListener l) {
+		url = (url.indexOf("img.diange.fm"))==-1? url:url+"!m";
+		getImageLoader().get(url, l);
+	}
+	
 	public void getImageBitmap(String url, ImageListener l, int max_width,
 			int max_height) {
 		getImageLoader().get(url, l, max_width, max_height);
