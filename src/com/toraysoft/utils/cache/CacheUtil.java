@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 public class CacheUtil {
 
@@ -80,7 +81,11 @@ public class CacheUtil {
 	public Bitmap getBitmapCache(String key) {
 		if (mACache != null) {
 			key = key.hashCode() + "";
-			return mACache.getAsBitmap(key);
+			try {
+				return mACache.getAsBitmap(key);
+			} catch (Throwable e) {
+				Log.e("CacheUtil", e.getMessage(), e);
+			}
 		}
 		return null;
 	}
