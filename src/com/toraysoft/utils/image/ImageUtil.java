@@ -1,5 +1,7 @@
 package com.toraysoft.utils.image;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -11,7 +13,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
@@ -20,6 +24,7 @@ import android.graphics.RectF;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.util.LruCache;
+import android.text.TextUtils;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 
@@ -457,4 +462,89 @@ public class ImageUtil {
 		
 		public void onResponse(Bitmap bitmap);
 	}
+	
+	public static Bitmap getBitmapFromFileScale(String filepath) {
+		if(TextUtils.isEmpty(filepath))
+			return null;
+		File file = new File(filepath);
+		if (!file.exists()) {
+			return null;
+		}
+		Bitmap bitmap = null;
+		final BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		bitmap = BitmapFactory.decodeFile(filepath, options);
+		options.inJustDecodeBounds = false;
+		int w = options.outWidth;
+		int h = options.outHeight;
+		float hh = 1280f;
+		float ww = 720f;
+		int be = 1;
+		if (w > ww || h > hh) {
+			if (w > h && w > ww) {
+				be = (int) (options.outWidth / ww);
+			} else if (w < h && h > hh) {
+				be = (int) (options.outHeight / hh);
+			}
+		}
+		if (be <= 0)
+			be = 1;
+		options.inSampleSize = be;
+		try {
+			bitmap = BitmapFactory.decodeFile(filepath, options);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return bitmap;
+	}
+	
+	public static Bitmap getBitmapFromFileScale2(String filepath) {
+		if(TextUtils.isEmpty(filepath))
+			return null;
+		File file = new File(filepath);
+		if (!file.exists()) {
+			return null;
+		}
+		Bitmap bitmap = null;
+		final BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		bitmap = BitmapFactory.decodeFile(filepath, options);
+		options.inJustDecodeBounds = false;
+		int w = options.outWidth;
+		int h = options.outHeight;
+		float hh = 240f;
+		float ww = 240f;
+		int be = 1;
+		if (w > ww || h > hh) {
+			if (w > h && w > ww) {
+				be = (int) (options.outWidth / ww);
+			} else if (w < h && h > hh) {
+				be = (int) (options.outHeight / hh);
+			}
+		}
+		if (be <= 0)
+			be = 1;
+		options.inSampleSize = be;
+		try {
+			bitmap = BitmapFactory.decodeFile(filepath, options);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return bitmap;
+	}
+	
+	public static Bitmap compressImage(Bitmap image) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+		int options = 100;
+		while (baos.toByteArray().length / 1024 > 1024) {
+			baos.reset();
+			image.compress(Bitmap.CompressFormat.JPEG, options, baos);
+			options -= 10;
+		}
+		ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());
+		Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);
+		return bitmap;
+	}
+	
 }
