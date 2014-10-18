@@ -219,16 +219,22 @@ public class ImageUtil {
 	 * @param l
 	 */
 	public void getImageBitmap(String url, ImageListener l) {
+		if(TextUtils.isEmpty(url))
+			return;
 		getImageLoader().get(url, l);
 	}
 	
 	public void getImageSmallBitmap(String url, final ImageListener l) {
+		if(TextUtils.isEmpty(url))
+			return;
 		final String u = (url.indexOf("img.diange.fm")==-1
 							&& url.indexOf("!")!=-1)? url:url+"!m";
 		getImageLoader().get(u,l);
 	}
 	
 	public void getImageMiniBitmap(String url, final ImageListener l) {
+		if(TextUtils.isEmpty(url))
+			return;
 		final String u = (url.indexOf("img.diange.fm")!=-1
 							&& url.indexOf("!")!=-1)? url:url+"!s";
 		getImageLoader().get(u,l);
@@ -236,11 +242,15 @@ public class ImageUtil {
 	
 	public void getImageBitmap(String url, ImageListener l, int max_width,
 			int max_height) {
+		if(TextUtils.isEmpty(url))
+			return;
 		getImageLoader().get(url, l, max_width, max_height);
 	}
 	
 	public void getRoundImageMiniBitmap(final String url,
 			final CustomImageListener l) {
+		if(TextUtils.isEmpty(url))
+			return;
 		final String u = (url.indexOf("img.diange.fm")!=-1
 				&& url.indexOf("!")!=-1)? url:url+"!s";
 		getRoundImageBitmap(u, l);
@@ -248,6 +258,8 @@ public class ImageUtil {
 
 	public void getRoundImageBitmap(final String url,
 			final CustomImageListener l) {
+		if(TextUtils.isEmpty(url))
+			return;
 		getImageLoader().get(url, new ImageListener() {
 
 			@Override
@@ -270,6 +282,8 @@ public class ImageUtil {
 
 	public void getCornersImageBitmap(final String url, final float corners,
 			final CustomImageListener l) {
+		if(TextUtils.isEmpty(url))
+			return;
 		getImageLoader().get(url, new ImageListener() {
 
 			@Override
