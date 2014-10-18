@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.NClob;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,30 +76,7 @@ public class ImageUtil {
 
 	public ImageLoader getImageLoader() {
 		if (mImageLoader == null) {
-
-//			File cacheDir = new File(mContext.getCacheDir(), "temp");
-//
-//			HttpStack stack = null;
-//			if (Build.VERSION.SDK_INT >= 9) {
-//				stack = new HurlStack();
-//			} else {
-//				// Prior to Gingerbread, HttpUrlConnection was unreliable.
-//				// See:
-//				// http://android-developers.blogspot.com/2011/09/androids-http-clients.html
-//				stack = new HttpClientStack(
-//						AndroidHttpClient.newInstance("TorayImage"));
-//			}
-//
-//			Network network = new BasicNetwork(stack);
-//			RequestQueue queue = new RequestQueue(new DiskBasedCache(cacheDir),
-//					network, 5);
-//			queue.start();
-
-			 mImageLoader = new ImageLoader(Volley.newRequestQueue(mContext
-			 .getApplicationContext()), mBitmapLruCache);
-
-//			mImageLoader = new ImageLoader(queue, mBitmapLruCache);
-
+			mImageLoader = new ImageLoader(Volley.newRequestQueue(mContext), mBitmapLruCache);
 		}
 		return mImageLoader;
 	}
