@@ -304,6 +304,16 @@ public class ImageUtil {
 			}
 		});
 	}
+	
+	public void getBlurImageBitmap(String url, final ImageListener l) {
+		if(TextUtils.isEmpty(url))
+			return;
+		if(url.indexOf("?")!=-1){
+			url=  url.substring(0, url.indexOf("?"));
+		}
+		final String u = url+"?imageMogr2/blur/50x80/thumbnail/180x";
+		getImageLoader().get(u, l);
+	}
 
 	/**
 	 * 转换图片成圆形
