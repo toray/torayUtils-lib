@@ -182,6 +182,12 @@ public class TimeUtil {
 		mCalendar.set(year, month, day);
 		return sdf.format(mCalendar.getTime());
 	}
+
+	public static String parseTime2DateStr(long time) {
+		time = time*1000;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		return sdf.format(new Date(time));
+	}
 	
 	public static String parseSec2Min(int sec){
 		String min = "";
