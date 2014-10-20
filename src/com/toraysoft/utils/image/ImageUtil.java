@@ -15,6 +15,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
@@ -657,6 +658,13 @@ public class ImageUtil {
 		ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());
 		Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);
 		return bitmap;
+	}
+	
+	 private static Bitmap small(Bitmap bitmap) {
+		  Matrix matrix = new Matrix(); 
+		  matrix.postScale(0.5f,0.5f); //长和宽放大缩小的比例
+		  Bitmap resizeBmp = Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);
+		  return resizeBmp;
 	}
 	
 }
