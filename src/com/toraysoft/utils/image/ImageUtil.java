@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.NClob;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,8 +21,6 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.net.Uri;
-import android.net.http.AndroidHttpClient;
-import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
@@ -33,14 +30,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ImageView;
 
-import com.android.volley.Network;
-import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.BasicNetwork;
-import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.HttpClientStack;
-import com.android.volley.toolbox.HttpStack;
-import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageCache;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
@@ -227,16 +217,16 @@ public class ImageUtil {
 	public void getImageSmallBitmap(String url, final ImageListener l) {
 		if(TextUtils.isEmpty(url))
 			return;
-		final String u = (url.indexOf("img.diange.fm")==-1
-							&& url.indexOf("!")!=-1)? url:url+"!m";
+		final String u = (!url.contains("img.diange.fm")
+				|| url.contains("!"))? url:url+"!m";
 		getImageLoader().get(u,l);
 	}
 	
 	public void getImageMiniBitmap(String url, final ImageListener l) {
 		if(TextUtils.isEmpty(url))
 			return;
-		final String u = (url.indexOf("img.diange.fm")!=-1
-							&& url.indexOf("!")!=-1)? url:url+"!s";
+		final String u = (!url.contains("img.diange.fm")
+							|| url.contains("!"))? url:url+"!s";
 		getImageLoader().get(u,l);
 	}
 	
@@ -251,8 +241,8 @@ public class ImageUtil {
 			final CustomImageListener l) {
 		if(TextUtils.isEmpty(url))
 			return;
-		final String u = (url.indexOf("img.diange.fm")!=-1
-				&& url.indexOf("!")!=-1)? url:url+"!s";
+		final String u = (!url.contains("img.diange.fm")
+				|| url.contains("!"))? url:url+"!s";
 		getRoundImageBitmap(u, l);
 	}
 
@@ -308,7 +298,7 @@ public class ImageUtil {
 	public void getBlurImageBitmap(String url, final ImageListener l) {
 		if(TextUtils.isEmpty(url))
 			return;
-		if(url.indexOf("?")!=-1){
+		if(url.contains("?")){
 			url=  url.substring(0, url.indexOf("?"));
 		}
 		final String u = url+"?imageMogr2/blur/50x80/thumbnail/180x";

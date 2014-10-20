@@ -62,6 +62,19 @@ public class TimeUtil {
 		return sb.toString();
 	}
 	
+	public static long parseUtcTime(String time){
+		 String time1=time.replaceAll("T", "-");
+		 String time2=time1.replaceAll("Z", "");
+
+		 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-hh:mm:ss");
+	     sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+	     try {
+			return sdf.parse(time2).getTime();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+	     return 0L;
+	}
 	
 	public static String getConverTime(String time,boolean isDetail){
 		  String time1=time.replaceAll("T", "-");
