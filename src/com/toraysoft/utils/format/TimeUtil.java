@@ -106,8 +106,10 @@ public class TimeUtil {
 			timeStr = timeGap / (60 * 60) + "小时前";
 		} else if (timeGap > 60) {// 1分钟-59分钟
 			timeStr = timeGap / 60 + "分钟前";
-		} else {// 1秒钟-59秒钟
+		} else if(timeGap > 0){// 1秒钟-59秒钟
 			timeStr = timeGap + "秒前";
+		} else {
+			timeStr = "刚刚";
 		}
 		return timeStr;
 	}
@@ -151,8 +153,10 @@ public class TimeUtil {
 			timeStr = timeGap / (60 * 60) + "小时前";
 		} else if (timeGap > 60) {// 1分钟-59分钟
 			timeStr = timeGap / 60 + "分钟前";
-		} else {// 1秒钟-59秒钟
+		} else if (timeGap > 0) {// 1秒钟-59秒钟
 			timeStr = timeGap + "秒前";
+		} else {
+			timeStr = "刚刚";
 		}
 		return timeStr;
 	}
