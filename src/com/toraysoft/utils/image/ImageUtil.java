@@ -219,7 +219,7 @@ public class ImageUtil {
 		if(TextUtils.isEmpty(url))
 			return;
 		final String u = (!url.contains("img.diange.fm")
-				|| url.contains("!"))? url:url+"!m";
+				|| url.contains("!") || url.contains("?"))? url:url+"!m";
 		getImageLoader().get(u,l);
 	}
 	
@@ -227,7 +227,7 @@ public class ImageUtil {
 		if(TextUtils.isEmpty(url))
 			return;
 		final String u = (!url.contains("img.diange.fm")
-							|| url.contains("!"))? url:url+"!s";
+							|| url.contains("!") || url.contains("?"))? url:url+"!s";
 		getImageLoader().get(u,l);
 	}
 	
@@ -243,7 +243,7 @@ public class ImageUtil {
 		if(TextUtils.isEmpty(url))
 			return;
 		final String u = (!url.contains("img.diange.fm")
-				|| url.contains("!"))? url:url+"!s";
+				|| url.contains("!") || url.contains("?"))? url:url+"!s";
 		getRoundImageBitmap(u, l);
 	}
 
