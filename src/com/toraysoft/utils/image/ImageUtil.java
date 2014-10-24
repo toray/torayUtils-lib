@@ -451,7 +451,7 @@ public class ImageUtil {
 	 * @param l
 	 */
 	public static Uri saveImageBitmap(Bitmap bitmap, File dir) {
-		File file = new File(dir, System.currentTimeMillis() + ".jpg");
+		File file = new File(dir, System.currentTimeMillis() + "");
 		FileOutputStream fileOutputStream = null;
 		try {
 			fileOutputStream = new FileOutputStream(file);
