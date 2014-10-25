@@ -42,7 +42,7 @@ import com.toraysoft.utils.cache.CacheUtil;
 public class ImageUtil {
 	static ImageUtil mImageManager;
 	static ImageLoader mImageLoader;
-	Map<String, ImageView> tasks = new HashMap<String, ImageView>();
+	Map<String, ImageListener> tasks = new HashMap<String, ImageListener>();
 	static boolean isLock;
 	static BitmapLruCache mBitmapLruCache;
 
@@ -67,7 +67,8 @@ public class ImageUtil {
 
 	public ImageLoader getImageLoader() {
 		if (mImageLoader == null) {
-			mImageLoader = new ImageLoader(Volley.newRequestQueue(mContext), mBitmapLruCache);
+			mImageLoader = new ImageLoader(Volley.newRequestQueue(mContext),
+					mBitmapLruCache);
 		}
 		return mImageLoader;
 	}
@@ -210,46 +211,46 @@ public class ImageUtil {
 	 * @param l
 	 */
 	public void getImageBitmap(String url, ImageListener l) {
-		if(TextUtils.isEmpty(url))
+		if (TextUtils.isEmpty(url))
 			return;
 		getImageLoader().get(url, l);
 	}
-	
+
 	public void getImageSmallBitmap(String url, final ImageListener l) {
-		if(TextUtils.isEmpty(url))
+		if (TextUtils.isEmpty(url))
 			return;
-		final String u = (!url.contains("img.diange.fm")
-				|| url.contains("!") || url.contains("?"))? url:url+"!m";
-		getImageLoader().get(u,l);
+		final String u = (!url.contains("img.diange.fm") || url.contains("!") || url
+				.contains("?")) ? url : url + "!m";
+		getImageLoader().get(u, l);
 	}
-	
+
 	public void getImageMiniBitmap(String url, final ImageListener l) {
-		if(TextUtils.isEmpty(url))
+		if (TextUtils.isEmpty(url))
 			return;
-		final String u = (!url.contains("img.diange.fm")
-							|| url.contains("!") || url.contains("?"))? url:url+"!s";
-		getImageLoader().get(u,l);
+		final String u = (!url.contains("img.diange.fm") || url.contains("!") || url
+				.contains("?")) ? url : url + "!s";
+		getImageLoader().get(u, l);
 	}
-	
+
 	public void getImageBitmap(String url, ImageListener l, int max_width,
 			int max_height) {
-		if(TextUtils.isEmpty(url))
+		if (TextUtils.isEmpty(url))
 			return;
 		getImageLoader().get(url, l, max_width, max_height);
 	}
-	
+
 	public void getRoundImageMiniBitmap(final String url,
 			final CustomImageListener l) {
-		if(TextUtils.isEmpty(url))
+		if (TextUtils.isEmpty(url))
 			return;
-		final String u = (!url.contains("img.diange.fm")
-				|| url.contains("!") || url.contains("?"))? url:url+"!s";
+		final String u = (!url.contains("img.diange.fm") || url.contains("!") || url
+				.contains("?")) ? url : url + "!s";
 		getRoundImageBitmap(u, l);
 	}
 
 	public void getRoundImageBitmap(final String url,
 			final CustomImageListener l) {
-		if(TextUtils.isEmpty(url))
+		if (TextUtils.isEmpty(url))
 			return;
 		getImageLoader().get(url, new ImageListener() {
 
@@ -273,7 +274,7 @@ public class ImageUtil {
 
 	public void getCornersImageBitmap(final String url, final float corners,
 			final CustomImageListener l) {
-		if(TextUtils.isEmpty(url))
+		if (TextUtils.isEmpty(url))
 			return;
 		getImageLoader().get(url, new ImageListener() {
 
@@ -295,14 +296,14 @@ public class ImageUtil {
 			}
 		});
 	}
-	
+
 	public void getBlurImageBitmap(String url, final ImageListener l) {
-		if(TextUtils.isEmpty(url))
+		if (TextUtils.isEmpty(url))
 			return;
-		if(url.contains("?")){
-			url=  url.substring(0, url.indexOf("?"));
+		if (url.contains("?")) {
+			url = url.substring(0, url.indexOf("?"));
 		}
-		final String u = url+"?imageMogr2/blur/50x80/thumbnail/180x";
+		final String u = url + "?imageMogr2/blur/50x80/thumbnail/180x";
 		getImageLoader().get(u, l);
 	}
 
@@ -483,60 +484,19 @@ public class ImageUtil {
 		this.animation = anim;
 	}
 
-	public void putTask(final ImageView iv, String image) {
-		Bitmap bitmap = mBitmapLruCache.get(image);
-		if (isLock && (bitmap == null || bitmap.isRecycled())) {
-			tasks.put(image, iv);
+	public void putTask(String image, final ImageListener l) {
+		if (getImageLoader().isCached(image, 0, 0)) {
+			if (l != null) {
+				getImageLoader().get(image, l);
+			}
 		} else {
-			getImageBitmap(image, new ImageListener() {
-
-				@Override
-				public void onErrorResponse(VolleyError error) {
-				}
-
-				@Override
-				public void onResponse(ImageContainer response,
-						boolean isImmediate) {
-					Log.e("test", "====2====" + response);
-					if (response != null) {
-						iv.setImageBitmap(response.getBitmap());
-						if (animation != null)
-							iv.startAnimation(animation);
-					}
-				}
-			});
-
-			// if (animation != null)
-			// iv.setAnimation(animation);
-			// iv.setImageUrl(image, getImageLoader());
+			tasks.put(image, l);
 		}
 	}
 
 	public void doTask() {
 		for (String image : tasks.keySet()) {
-			final String img = image;
-			getImageBitmap(image, new ImageListener() {
-
-				@Override
-				public void onErrorResponse(VolleyError error) {
-				}
-
-				@Override
-				public void onResponse(ImageContainer response,
-						boolean isImmediate) {
-					Log.e("test", "====1====" + response.getBitmap());
-					if (response != null && response.getBitmap() != null
-							&& tasks.get(img) != null) {
-						tasks.get(img).setImageBitmap(response.getBitmap());
-						if (animation != null)
-							tasks.get(img).startAnimation(animation);
-					}
-				}
-			});
-
-			// if (animation != null)
-			// tasks.get(image).setAnimation(animation);
-			// tasks.get(image).setImageUrl(image, getImageLoader());
+			getImageLoader().get(image, tasks.get(image));
 		}
 		tasks.clear();
 	}
@@ -575,9 +535,9 @@ public class ImageUtil {
 
 		public void onResponse(Bitmap bitmap);
 	}
-	
+
 	public static Bitmap getBitmapFromFileScale(String filepath) {
-		if(TextUtils.isEmpty(filepath))
+		if (TextUtils.isEmpty(filepath))
 			return null;
 		File file = new File(filepath);
 		if (!file.exists()) {
@@ -610,9 +570,9 @@ public class ImageUtil {
 		}
 		return bitmap;
 	}
-	
+
 	public static Bitmap getBitmapFromFileScale2(String filepath) {
-		if(TextUtils.isEmpty(filepath))
+		if (TextUtils.isEmpty(filepath))
 			return null;
 		File file = new File(filepath);
 		if (!file.exists()) {
@@ -645,7 +605,7 @@ public class ImageUtil {
 		}
 		return bitmap;
 	}
-	
+
 	public static Bitmap compressImage(Bitmap image) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -659,12 +619,13 @@ public class ImageUtil {
 		Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);
 		return bitmap;
 	}
-	
-	 private static Bitmap small(Bitmap bitmap) {
-		  Matrix matrix = new Matrix(); 
-		  matrix.postScale(0.5f,0.5f); //长和宽放大缩小的比例
-		  Bitmap resizeBmp = Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);
-		  return resizeBmp;
+
+	public static Bitmap resizeBitmap(Bitmap bitmap, float percent) {
+		Matrix matrix = new Matrix();
+		matrix.postScale(percent, percent); // 长和宽放大缩小的比例
+		Bitmap resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+				bitmap.getHeight(), matrix, true);
+		return resizeBmp;
 	}
-	
+
 }
