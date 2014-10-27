@@ -220,4 +220,20 @@ public class TimeUtil {
 		min += sec%60>=10? sec%60:"0"+sec%60;
 		return min;
 	}
+	
+	public static long getConverTime(String time){
+		String time1=time.replaceAll("T", "-");
+		String time2=time1.replaceAll("Z", "");
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-hh:mm:ss");
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		long millionSeconds;
+		try {
+			millionSeconds = sdf.parse(time2).getTime() / 1000;
+			return millionSeconds;
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
 }
