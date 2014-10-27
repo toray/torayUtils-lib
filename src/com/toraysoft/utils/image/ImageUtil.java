@@ -25,11 +25,9 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.animation.Animation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.ImageView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -192,7 +190,9 @@ public class ImageUtil {
 		intent.putExtra("outputX", w);
 		intent.putExtra("outputY", h);
 		intent.putExtra("scale", true);
-		intent.putExtra("return-data", true);
+		intent.putExtra("return-data", false);
+		intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+		intent.putExtra("noFaceDetection", true);
 		return intent;
 		// bitmapOptions.inJustDecodeBounds = true;
 		// BitmapFactory.decodeStream(inStream,null,bitmapOptions);
