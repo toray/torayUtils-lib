@@ -231,6 +231,14 @@ public class ImageUtil {
 				.contains("?")) ? url : url + "!s";
 		getImageLoader().get(u, l);
 	}
+	
+	public void getImageLargeBitmap(String url, final ImageListener l) {
+		if (TextUtils.isEmpty(url))
+			return;
+		final String u = (!url.contains("img.diange.fm") || url.contains("!") || url
+				.contains("?")) ? url : url + "!l";
+		getImageLoader().get(u, l);
+	}
 
 	public void getImageBitmap(String url, ImageListener l, int max_width,
 			int max_height) {
