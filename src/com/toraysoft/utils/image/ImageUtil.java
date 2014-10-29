@@ -170,7 +170,7 @@ public class ImageUtil {
 	 * @param fromFile
 	 * @return
 	 */
-	public static Intent getCutImageIntent(Uri uri, int w, int h) {
+	public static Intent getCutImageIntent(Uri uri,Uri out, int w, int h) {
 		// try {
 		// ContentResolver resolver = context.getContentResolver();
 		// InputStream inStream = resolver.openInputStream(uri);
@@ -193,6 +193,7 @@ public class ImageUtil {
 		intent.putExtra("return-data", false);
 		intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
 		intent.putExtra("noFaceDetection", true);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, out);
 		return intent;
 		// bitmapOptions.inJustDecodeBounds = true;
 		// BitmapFactory.decodeStream(inStream,null,bitmapOptions);
