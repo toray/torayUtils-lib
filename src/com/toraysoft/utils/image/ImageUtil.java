@@ -9,8 +9,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.app.UiModeManager;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
@@ -21,6 +23,7 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.util.LruCache;
@@ -636,5 +639,73 @@ public class ImageUtil {
 				bitmap.getHeight(), matrix, true);
 		return resizeBmp;
 	}
-
+	
+	public final Uri getImageUriDegree(Uri uri,File file,int sw,int sh){
+		String path = uri.getPath();  
+		int degrees = readPictureDegree(path);
+		if(degrees>0){
+			BitmapFactory.Options opts = new BitmapFactory.Options();
+			opts.inJustDecodeBounds = true;
+			BitmapFactory.decodeFile(path, opts);
+			int width = opts.outWidth;
+//			int height = opts.outHeight;
+//			if(sw>width){
+			opts.inSampleSize = 4;
+//			}
+			opts.inJustDecodeBounds = false;
+			Bitmap bitmap = rotate(BitmapFactory.decodeFile(path,opts), degrees);
+			if(bitmap!=null){
+				Uri tmp = saveImageBitmap(bitmap, file);
+				if(tmp!=null){
+					return tmp;
+				}
+			}
+		}
+		return uri;
+	}
+	
+	private static int readPictureDegree(String path) {
+		int degree = 0;
+		try {
+			ExifInterface exifInterface = new ExifInterface(path);
+			int orientation = exifInterface.getAttributeInt(
+					ExifInterface.TAG_ORIENTATION,
+					ExifInterface.ORIENTATION_NORMAL);
+			switch (orientation) {
+			case ExifInterface.ORIENTATION_ROTATE_90:
+				degree = 90;
+				break;
+			case ExifInterface.ORIENTATION_ROTATE_180:
+				degree = 180;
+				break;
+			case ExifInterface.ORIENTATION_ROTATE_270:
+				degree = 270;
+				break;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return degree;
+	}
+	
+	private static Bitmap rotate(Bitmap b, int degrees) {
+		if (degrees == 0) {
+			return b;
+		}
+		if (degrees != 0 && b != null) {
+			Matrix m = new Matrix();
+			m.setRotate(degrees, (float) b.getWidth(), (float) b.getHeight());
+			try {
+				Bitmap b2 = Bitmap.createBitmap(b, 0, 0, b.getWidth(),
+						b.getHeight(), m, true);
+				if (b != b2) {
+					b.recycle(); // Android开发网再次提示Bitmap操作完应该显示的释放
+					b = b2;
+				}
+			} catch (OutOfMemoryError ex) {
+				// Android123建议大家如何出现了内存不足异常，最好return 原始的bitmap对象。.
+			}
+		}
+		return b;
+	}
 }
