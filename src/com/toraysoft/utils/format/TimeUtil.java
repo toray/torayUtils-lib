@@ -64,25 +64,35 @@ public class TimeUtil {
 	}
 	
 	public static long parseUtcTime(String time){
-		final String year = time.substring(0, 4);
-		final String month = time.substring(5, 7);
-		final String day = time.substring(8, 10);
-		final String hour = time.substring(11, 13);
-		final String minute = time.substring(14, 16);
-		final String second = time.substring(17, 19);
-		Calendar result = new GregorianCalendar(Integer.valueOf(year),
-				Integer.valueOf(month) - 1, Integer.valueOf(day),
-				Integer.valueOf(hour), Integer.valueOf(minute),
-				Integer.valueOf(second));
-		result.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
-		return result.getTimeInMillis();
+//		final String year = time.substring(0, 4);
+//		final String month = time.substring(5, 7);
+//		final String day = time.substring(8, 10);
+//		final String hour = time.substring(11, 13);
+//		final String minute = time.substring(14, 16);
+//		final String second = time.substring(17, 19);
+//		Calendar result = new GregorianCalendar(Integer.valueOf(year),
+//				Integer.valueOf(month) - 1, Integer.valueOf(day),
+//				Integer.valueOf(hour), Integer.valueOf(minute),
+//				Integer.valueOf(second));
+//		result.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
+//		return result.getTimeInMillis();
+		String time1=time.replaceAll("T", "-");
+	    String time2=time1.replaceAll("Z", "");
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+	    try {
+			return sdf.parse(time2).getTime();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return 0L;
 	}
 	
 	public static String getConverTime(String time,boolean isDetail){
 		  String time1=time.replaceAll("T", "-");
 		  String time2=time1.replaceAll("Z", "");
 
-		  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-hh:mm:ss");
+		  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
 	      sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 		  try {
 			long millionSeconds = sdf.parse(time2).getTime();
