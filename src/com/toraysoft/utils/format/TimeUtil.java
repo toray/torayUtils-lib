@@ -237,7 +237,7 @@ public class TimeUtil {
 		String time1=time.replaceAll("T", "-");
 		String time2=time1.replaceAll("Z", "");
 
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-hh:mm:ss");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
 		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 		long millionSeconds;
 		try {
