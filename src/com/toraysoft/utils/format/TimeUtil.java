@@ -127,7 +127,7 @@ public class TimeUtil {
 	}
 	
 	public static String converTimeSecond(long timestamp) {
-		long currentSeconds = System.currentTimeMillis() / 1000 - 28800;
+		long currentSeconds = System.currentTimeMillis() / 1000 - getTimeZoneOffset();
 		long timeGap = currentSeconds - timestamp;// 与现在时间相差秒数
 		String timeStr = null;
 		if (timeGap > 7* 24 * 60 *60){
@@ -247,5 +247,16 @@ public class TimeUtil {
 			e.printStackTrace();
 		}
 		return 0;
+	}
+	
+	public static long getTimeZoneOffset() {
+		long offset = 0;
+		try {
+			offset = TimeZone.getDefault().getOffset(System.currentTimeMillis()) / 1000;
+		} catch (Exception e) {
+			e.printStackTrace();
+			offset = 0;
+		}
+		return offset;
 	}
 }
