@@ -191,6 +191,7 @@ public class ImageUtil {
 		intent.putExtra("outputX", w);
 		intent.putExtra("outputY", h);
 		intent.putExtra("scale", true);
+		intent.putExtra("scaleUpIfNeeded", true);
 		intent.putExtra("return-data", false);
 		intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
 		intent.putExtra("noFaceDetection", true);
