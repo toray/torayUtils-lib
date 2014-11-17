@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import android.annotation.SuppressLint;
@@ -29,7 +28,7 @@ public class TimeUtil {
 			if (month == 0 || day == 0 || month > 12)
 				return "";
 			month = day < DayArr[month - 1] ? month - 1 : month;
-			return month > 0 ? starArr[month - 1] : starArr[11];
+			return month >=starArr.length ? starArr[0] : starArr[month];
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
