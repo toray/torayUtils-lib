@@ -150,7 +150,7 @@ public class TimeUtil {
 		long timeGap = currentSeconds - timestamp;// 与现在时间相差秒数
 		String timeStr = null;
 		if (timeGap > 7* 24 * 60 *60){
-			timeStr = getDateTimeByMillisecond(timestamp);//几月几号
+			timeStr = getDateTimeByMillisecond(timestamp * 1000);//几月几号
 		} else if (timeGap > 24 * 60 * 60) {// 1天以上
 			timeStr = timeGap / (24 * 60 * 60) + "天前";
 		} else if (timeGap > 60 * 60) {// 1小时-24小时
@@ -170,7 +170,7 @@ public class TimeUtil {
 		long timeGap = currentSeconds - timestamp;// 与现在时间相差秒数
 		String timeStr = null;
 		if (timeGap > 7* 24 * 60 *60){
-			timeStr = getDateTimeByMillisecond(timestamp);//几月几号
+			timeStr = getDateTimeByMillisecond(timestamp * 1000);//几月几号
 		} else if (timeGap > 24 * 60 * 60) {// 1天以上
 			timeStr = timeGap / (24 * 60 * 60) + "天前";
 		} else if (timeGap > 60 * 60) {// 1小时-24小时
