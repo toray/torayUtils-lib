@@ -282,6 +282,23 @@ public class ImageUtil {
 			}
 		});
 	}
+	
+	public void getRoundImageBitmap(final Uri uri,
+			final CustomImageListener l) {
+		try{
+			Bitmap bitmap = MediaStore.Images.Media.getBitmap(mContext.getContentResolver(), uri);
+			if(bitmap!=null){
+				Bitmap b = cutRoundBitmap(bitmap);
+				l.onResponse(b);
+			}
+		}catch(OutOfMemoryError e){
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public void getCornersImageBitmap(final String url, final float corners,
 			final CustomImageListener l) {
