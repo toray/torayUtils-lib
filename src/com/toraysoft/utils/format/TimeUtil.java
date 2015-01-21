@@ -212,6 +212,19 @@ public class TimeUtil {
 		return timeStr;
 	}
 	
+	
+	public static String afterTimeStr(int second) {
+		String timeStr = "";
+		if (second > 60 * 60) {// 1小时-24小时
+			timeStr = second / (60 * 60) + "小时后";
+		} else if (second > 60) {// 1分钟-59分钟
+			timeStr = second / 60 + "分钟后";
+		} else if (second > 0) {// 1秒钟-59秒钟
+			timeStr = second + "秒后";
+		}
+		return timeStr;
+	}
+	
 	//几月几号
 	@SuppressLint("SimpleDateFormat")
 	public static String getDetailDateTimeByMillisecond(long str) {  
