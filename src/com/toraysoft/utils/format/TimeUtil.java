@@ -88,17 +88,17 @@ public class TimeUtil {
 	}
 	
 	public static String getConverTime(String time,boolean isDetail){
-		  String time1=time.replaceAll("T", "-");
-		  String time2=time1.replaceAll("Z", "");
+		String time1=time.replaceAll("T", "-");
+		String time2=time1.replaceAll("Z", "");
 
-		  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
-	      sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-		  try {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+	    sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+	    try {
 			long millionSeconds = sdf.parse(time2).getTime();
 			if(isDetail)
-			return converDetailTime(millionSeconds);
+				return converDetailTime(millionSeconds);
 			else
-			return converTime(millionSeconds);
+				return converTime(millionSeconds);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
@@ -165,12 +165,12 @@ public class TimeUtil {
 		return timeStr;
 	}
 	
-	public static String converTimeThird(long timestamp) {
+	public static String converTimeThird(long timestamp, long offset) {
 		long currentSeconds = System.currentTimeMillis() / 1000;
 		long timeGap = currentSeconds - timestamp;// 与现在时间相差秒数
 		String timeStr = null;
 		if (timeGap > 7* 24 * 60 *60){
-			timeStr = getDateTimeByMillisecond(timestamp * 1000);//几月几号
+			timeStr = getDateTimeByMillisecond((timestamp - offset) * 1000);//几月几号
 		} else if (timeGap > 24 * 60 * 60) {// 1天以上
 			timeStr = timeGap / (24 * 60 * 60) + "天前";
 		} else if (timeGap > 60 * 60) {// 1小时-24小时
