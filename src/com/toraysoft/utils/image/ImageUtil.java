@@ -171,7 +171,18 @@ public class ImageUtil {
 	 * @param fromFile
 	 * @return
 	 */
-	public static Intent getCutImageIntent(Uri uri,Uri out, int w, int h) {
+	public static Intent getCutImageIntent(Uri uri, Uri out, int w, int h) {
+		return getCutImageIntent(uri, out, w, h, 1, 1);
+	}
+
+	/**
+	 * 裁剪图片
+	 * 
+	 * @param fromFile
+	 * @return
+	 */
+	public static Intent getCutImageIntent(Uri uri, Uri out, int w, int h,
+			int aspectX, int aspectY) {
 		// try {
 		// ContentResolver resolver = context.getContentResolver();
 		// InputStream inStream = resolver.openInputStream(uri);
@@ -186,8 +197,8 @@ public class ImageUtil {
 		Intent intent = new Intent("com.android.camera.action.CROP");
 		intent.setDataAndType(uri, "image/*");
 		intent.putExtra("crop", "true");
-		intent.putExtra("aspectX", 1);
-		intent.putExtra("aspectY", 1);
+		intent.putExtra("aspectX", aspectX);
+		intent.putExtra("aspectY", aspectY);
 		intent.putExtra("outputX", w);
 		intent.putExtra("outputY", h);
 		intent.putExtra("scale", true);
@@ -234,7 +245,7 @@ public class ImageUtil {
 				.contains("?")) ? url : url + "!s";
 		getImageLoader().get(u, l);
 	}
-	
+
 	public void getImageLargeBitmap(String url, final ImageListener l) {
 		if (TextUtils.isEmpty(url))
 			return;
@@ -282,16 +293,16 @@ public class ImageUtil {
 			}
 		});
 	}
-	
-	public void getRoundImageBitmap(final Uri uri,
-			final CustomImageListener l) {
-		try{
-			Bitmap bitmap = MediaStore.Images.Media.getBitmap(mContext.getContentResolver(), uri);
-			if(bitmap!=null){
+
+	public void getRoundImageBitmap(final Uri uri, final CustomImageListener l) {
+		try {
+			Bitmap bitmap = MediaStore.Images.Media.getBitmap(
+					mContext.getContentResolver(), uri);
+			if (bitmap != null) {
 				Bitmap b = cutRoundBitmap(bitmap);
 				l.onResponse(b);
 			}
-		}catch(OutOfMemoryError e){
+		} catch (OutOfMemoryError e) {
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -299,14 +310,14 @@ public class ImageUtil {
 			e.printStackTrace();
 		}
 	}
-	
-	public void getCornersImageMiniBitmap(final String url, final float corners,
-			final CustomImageListener l) {
+
+	public void getCornersImageMiniBitmap(final String url,
+			final float corners, final CustomImageListener l) {
 		if (TextUtils.isEmpty(url))
 			return;
 		final String u = (!url.contains("img.diange.fm") || url.contains("!") || url
 				.contains("?")) ? url : url + "!s";
-		getCornersImageBitmap(u,corners, l);
+		getCornersImageBitmap(u, corners, l);
 	}
 
 	public void getCornersImageBitmap(final String url, final float corners,
@@ -388,31 +399,32 @@ public class ImageUtil {
 			dst_right = height;
 			dst_bottom = height;
 		}
-		try{
-		Bitmap output = Bitmap.createBitmap(width, height, Config.ARGB_8888);
-		Canvas canvas = new Canvas(output);
+		try {
+			Bitmap output = Bitmap
+					.createBitmap(width, height, Config.ARGB_8888);
+			Canvas canvas = new Canvas(output);
 
-		final Paint paint = new Paint();
-		final Rect src = new Rect((int) left, (int) top, (int) right,
-				(int) bottom);
-		final Rect dst = new Rect((int) dst_left, (int) dst_top,
-				(int) dst_right, (int) dst_bottom);
-		final RectF rectF = new RectF(dst);
+			final Paint paint = new Paint();
+			final Rect src = new Rect((int) left, (int) top, (int) right,
+					(int) bottom);
+			final Rect dst = new Rect((int) dst_left, (int) dst_top,
+					(int) dst_right, (int) dst_bottom);
+			final RectF rectF = new RectF(dst);
 
-		paint.setAntiAlias(true);// 设置画笔无锯齿
+			paint.setAntiAlias(true);// 设置画笔无锯齿
 
-		canvas.drawARGB(0, 0, 0, 0); // 填充整个Canvas
+			canvas.drawARGB(0, 0, 0, 0); // 填充整个Canvas
 
-		// 以下有两种方法画圆,drawRounRect和drawCircle
-		canvas.drawRoundRect(rectF, roundPx, roundPx, paint);// 画圆角矩形，第一个参数为图形显示区域，第二个参数和第三个参数分别是水平圆角半径和垂直圆角半径。
-		// canvas.drawCircle(roundPx, roundPx, roundPx, paint);
+			// 以下有两种方法画圆,drawRounRect和drawCircle
+			canvas.drawRoundRect(rectF, roundPx, roundPx, paint);// 画圆角矩形，第一个参数为图形显示区域，第二个参数和第三个参数分别是水平圆角半径和垂直圆角半径。
+			// canvas.drawCircle(roundPx, roundPx, roundPx, paint);
 
-		paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));// 设置两张图片相交时的模式,参考http://trylovecatch.iteye.com/blog/1189452
-		canvas.drawBitmap(bitmap, src, dst, paint); // 以Mode.SRC_IN模式合并bitmap和已经draw了的Circle
+			paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));// 设置两张图片相交时的模式,参考http://trylovecatch.iteye.com/blog/1189452
+			canvas.drawBitmap(bitmap, src, dst, paint); // 以Mode.SRC_IN模式合并bitmap和已经draw了的Circle
 
-		return output;
-		}catch(OutOfMemoryError error){
-			
+			return output;
+		} catch (OutOfMemoryError error) {
+
 		}
 		return null;
 	}
@@ -432,7 +444,7 @@ public class ImageUtil {
 		float roundPx = corners;
 		float left, top, right, bottom, dst_left, dst_top, dst_right, dst_bottom;
 		if (width <= height) {
-//			 roundPx = width / 2;
+			// roundPx = width / 2;
 
 			left = 0;
 			top = 0;
@@ -446,7 +458,7 @@ public class ImageUtil {
 			dst_right = width;
 			dst_bottom = width;
 		} else {
-//			 roundPx = height / 2;
+			// roundPx = height / 2;
 
 			float clip = (width - height) / 2;
 
@@ -461,30 +473,31 @@ public class ImageUtil {
 			dst_right = height;
 			dst_bottom = height;
 		}
-		try{
-			Bitmap output = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+		try {
+			Bitmap output = Bitmap
+					.createBitmap(width, height, Config.ARGB_8888);
 			Canvas canvas = new Canvas(output);
-	
+
 			final Paint paint = new Paint();
 			final Rect src = new Rect((int) left, (int) top, (int) right,
 					(int) bottom);
 			final Rect dst = new Rect((int) dst_left, (int) dst_top,
 					(int) dst_right, (int) dst_bottom);
 			final RectF rectF = new RectF(dst);
-	
+
 			paint.setAntiAlias(true);// 设置画笔无锯齿
-	
+
 			canvas.drawARGB(0, 0, 0, 0); // 填充整个Canvas
-	
+
 			// 以下有两种方法画圆,drawRounRect和drawCircle
 			canvas.drawRoundRect(rectF, roundPx, roundPx, paint);// 画圆角矩形，第一个参数为图形显示区域，第二个参数和第三个参数分别是水平圆角半径和垂直圆角半径。
 			// canvas.drawCircle(roundPx, roundPx, roundPx, paint);
-	
+
 			paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));// 设置两张图片相交时的模式,参考http://trylovecatch.iteye.com/blog/1189452
 			canvas.drawBitmap(bitmap, src, dst, paint); // 以Mode.SRC_IN模式合并bitmap和已经draw了的Circle
 			return output;
-		}catch(OutOfMemoryError error){
-			
+		} catch (OutOfMemoryError error) {
+
 		}
 		return null;
 	}
@@ -671,31 +684,32 @@ public class ImageUtil {
 				bitmap.getHeight(), matrix, true);
 		return resizeBmp;
 	}
-	
-	public final Uri getImageUriDegree(Uri uri,File file,int sw,int sh){
-		String path = uri.getPath();  
+
+	public final Uri getImageUriDegree(Uri uri, File file, int sw, int sh) {
+		String path = uri.getPath();
 		int degrees = readPictureDegree(path);
-		if(degrees>0){
+		if (degrees > 0) {
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inJustDecodeBounds = true;
 			BitmapFactory.decodeFile(path, opts);
 			int width = opts.outWidth;
-//			int height = opts.outHeight;
-//			if(sw>width){
+			// int height = opts.outHeight;
+			// if(sw>width){
 			opts.inSampleSize = 4;
-//			}
+			// }
 			opts.inJustDecodeBounds = false;
-			Bitmap bitmap = rotate(BitmapFactory.decodeFile(path,opts), degrees);
-			if(bitmap!=null){
+			Bitmap bitmap = rotate(BitmapFactory.decodeFile(path, opts),
+					degrees);
+			if (bitmap != null) {
 				Uri tmp = saveImageBitmap(bitmap, file);
-				if(tmp!=null){
+				if (tmp != null) {
 					return tmp;
 				}
 			}
 		}
 		return uri;
 	}
-	
+
 	private static int readPictureDegree(String path) {
 		int degree = 0;
 		try {
@@ -719,7 +733,7 @@ public class ImageUtil {
 		}
 		return degree;
 	}
-	
+
 	private static Bitmap rotate(Bitmap b, int degrees) {
 		if (degrees == 0) {
 			return b;
