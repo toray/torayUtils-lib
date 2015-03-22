@@ -165,6 +165,20 @@ public class TimeUtil {
 		return timeStr;
 	}
 	
+	public static String converLastTimeSecond(long timestamp) {
+		long currentSeconds = System.currentTimeMillis() / 1000 - getTimeZoneOffset();
+		long timeGap = timestamp - currentSeconds;// 与现在时间相差秒数
+		String timeStr = null;
+		if (timeGap > 24 * 60 * 60) {// 1天以上
+			timeStr = timeGap / (24 * 60 * 60) + "天后";
+		} else if(timeGap > 0){
+			timeStr = timeGap + "1天后";
+		} else {
+			timeStr = "已过期";
+		}
+		return timeStr;
+	}
+	
 	public static String converTimeThird(long timestamp, long offset) {
 		long currentSeconds = System.currentTimeMillis() / 1000;
 		long timeGap = currentSeconds - timestamp;// 与现在时间相差秒数
@@ -290,6 +304,17 @@ public class TimeUtil {
 			offset = 0;
 		}
 		return offset;
+	}
+	
+	public static String getSimpleDate(String date){
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat format = new SimpleDateFormat("MM-dd");
+		try {
+			return format.format(sdf.parse(date));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 	
 }
