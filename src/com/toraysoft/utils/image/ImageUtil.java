@@ -12,6 +12,7 @@ import java.util.Map;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -26,6 +27,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.animation.Animation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -533,6 +535,19 @@ public class ImageUtil {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}
+		return null;
+	}
+	
+	
+	public static String bitmap2Base64(Bitmap bitmap) {
+		try{
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			bitmap.compress(CompressFormat.JPEG, 100, bos);// 参数100表示不压缩
+			byte[] bytes = bos.toByteArray();
+			return Base64.encodeToString(bytes, Base64.DEFAULT);
+		}catch(Throwable t){
+			t.printStackTrace();
 		}
 		return null;
 	}

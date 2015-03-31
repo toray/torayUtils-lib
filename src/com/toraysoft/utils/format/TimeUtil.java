@@ -168,13 +168,13 @@ public class TimeUtil {
 	public static String converLastTimeSecond(long timestamp) {
 		long currentSeconds = System.currentTimeMillis() / 1000 - getTimeZoneOffset();
 		long timeGap = timestamp - currentSeconds;// 与现在时间相差秒数
-		String timeStr = null;
+		String timeStr = "";
 		if (timeGap > 24 * 60 * 60) {// 1天以上
 			timeStr = timeGap / (24 * 60 * 60) + "天后";
 		} else if(timeGap > 0){
 			timeStr = timeGap + "1天后";
 		} else {
-			timeStr = "已过期";
+			timeStr = "";
 		}
 		return timeStr;
 	}
