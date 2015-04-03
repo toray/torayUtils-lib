@@ -3,6 +3,9 @@ package com.toraysoft.db;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.toraysoft.manager.ConfigManager;
+import com.toraysoft.manager.UserManager;
+
 import android.content.Context;
 import android.database.Cursor;
 
@@ -12,6 +15,10 @@ public class UserDatabaseHelper {
 	static UserDatabaseHelper mUserDatabaseHelper;
 
 	private UserDatabaseHelper() {
+		if(UserManager.get().isLogin()){
+			init(ConfigManager.get().getContext(), UserManager.get().getUser(),
+					ConfigManager.get().getDbName(), ConfigManager.get().getDbVersion());
+		}
 	}
 
 	public static UserDatabaseHelper get() {

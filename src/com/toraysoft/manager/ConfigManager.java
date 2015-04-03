@@ -25,6 +25,7 @@ public class ConfigManager {
 	}
 
 	public void init(Context context, String dbName, int dbVerion) {
+		this.isInit = true;
 		this.mContext = context;
 		this.dbName = dbName;
 		this.dbVerion = dbVerion;
