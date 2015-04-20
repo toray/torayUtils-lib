@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -25,6 +26,7 @@ import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.v4.app.Fragment;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -39,6 +41,7 @@ import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.android.volley.toolbox.Volley;
 import com.toraysoft.utils.cache.CacheUtil;
+import com.toraysoft.utils.image.activity.ImageCutChooserActivity;
 
 public class ImageUtil {
 	static ImageUtil mImageManager;
@@ -185,17 +188,6 @@ public class ImageUtil {
 	 */
 	public static Intent getCutImageIntent(Uri uri, Uri out, int w, int h,
 			int aspectX, int aspectY) {
-		// try {
-		// ContentResolver resolver = context.getContentResolver();
-		// InputStream inStream = resolver.openInputStream(uri);
-		// BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-		// Bitmap bm = BitmapFactory.decodeStream(inStream, null,
-		// bitmapOptions);
-		//
-		// return cutImage(bm, w, h);
-		// } catch (FileNotFoundException e) {
-		// e.printStackTrace();
-		// }
 		Intent intent = new Intent("com.android.camera.action.CROP");
 		intent.setDataAndType(uri, "image/*");
 		intent.putExtra("crop", "true");
@@ -210,14 +202,6 @@ public class ImageUtil {
 		intent.putExtra("noFaceDetection", true);
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, out);
 		return intent;
-		// bitmapOptions.inJustDecodeBounds = true;
-		// BitmapFactory.decodeStream(inStream,null,bitmapOptions);
-		// BitmapFactory.Options bitmapOptions2 = new BitmapFactory.Options();
-		// bitmapOptions2.inSampleSize=bitmapOptions.outHeight/Env.get().getScreenWidth();
-		// bitmapOptions2.inJustDecodeBounds = false;
-		// inStream = resolver.openInputStream(uri);
-		// Bitmap bm2 = BitmapFactory.decodeStream(inStream, null,
-		// bitmapOptions2);
 	}
 
 	/**
@@ -511,13 +495,17 @@ public class ImageUtil {
 	 * @param l
 	 */
 	public static Uri saveImageBitmap(Bitmap bitmap, File dir) {
+		return saveImageBitmap(bitmap, dir, Bitmap.CompressFormat.PNG);
+	}
+
+	public static Uri saveImageBitmap(Bitmap bitmap, File dir,
+			Bitmap.CompressFormat format) {
 		File file = new File(dir, System.currentTimeMillis() + "");
 		FileOutputStream fileOutputStream = null;
 		try {
 			fileOutputStream = new FileOutputStream(file);
 			if (bitmap != null) {
-				if (bitmap.compress(Bitmap.CompressFormat.PNG, 100,
-						fileOutputStream)) {
+				if (bitmap.compress(format, 100, fileOutputStream)) {
 					fileOutputStream.flush();
 					// fileOutputStream.close();
 					return Uri.fromFile(file);
@@ -725,10 +713,20 @@ public class ImageUtil {
 	}
 
 	public static Bitmap resizeBitmap(Bitmap bitmap, float percent) {
+		return resizeBitmap(bitmap, percent, false);
+	}
+	
+	public static Bitmap resizeBitmap(Bitmap bitmap, float percent,
+			boolean recycle) {
 		Matrix matrix = new Matrix();
 		matrix.postScale(percent, percent); // 长和宽放大缩小的比例
 		Bitmap resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
 				bitmap.getHeight(), matrix, true);
+		if (recycle){
+			bitmap.recycle();
+			bitmap = null;
+		}
+
 		return resizeBmp;
 	}
 
@@ -781,7 +779,7 @@ public class ImageUtil {
 		return degree;
 	}
 
-	private static Bitmap rotate(Bitmap b, int degrees) {
+	public static Bitmap rotate(Bitmap b, int degrees) {
 		if (degrees == 0) {
 			return b;
 		}
@@ -801,4 +799,145 @@ public class ImageUtil {
 		}
 		return b;
 	}
+
+	/**
+	 * 合并两张图片
+	 * 
+	 * @param src
+	 * @param watermark
+	 * @return
+	 */
+	public static Bitmap mergeImage(Bitmap src, Bitmap watermark) {
+		// 另外创建一张图片
+		Bitmap newb = Bitmap.createBitmap(src.getWidth(), src.getHeight(),
+				Config.ARGB_8888);// 创建一个新的和SRC长度宽度一样的位图
+		Canvas canvas = new Canvas(newb);
+		canvas.drawBitmap(src, 0, 0, null);// 在 0，0坐标开始画入原图片src
+		canvas.drawBitmap(watermark, 0,
+				src.getHeight() - watermark.getHeight(), null); // 涂鸦图片画到原图片中间位置
+		canvas.save(Canvas.ALL_SAVE_FLAG);
+		canvas.restore();
+
+		watermark.recycle();
+		watermark = null;
+		return newb;
+	}
+
+	/**
+	 * 缩放图片
+	 * 
+	 * @param bitmap
+	 * @param scale
+	 * @return
+	 */
+	public Bitmap scaleImage(Bitmap bitmap, float scale) {
+		Matrix matrix = new Matrix();
+		matrix.postScale(scale, scale); // 长和宽放大缩小的比例
+		Bitmap resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+				bitmap.getHeight(), matrix, true);
+		return resizeBmp;
+	}
+
+	public static Uri saveImageBitmap2File(Bitmap bitmap, File file,
+			Bitmap.CompressFormat format) {
+		FileOutputStream fileOutputStream = null;
+		try {
+			fileOutputStream = new FileOutputStream(file);
+			if (bitmap != null) {
+				if (bitmap.compress(format, 100, fileOutputStream)) {
+					fileOutputStream.flush();
+					// fileOutputStream.close();
+					return Uri.fromFile(file);
+				}
+			}
+		} catch (FileNotFoundException e) {
+			file.delete();
+			e.printStackTrace();
+		} catch (IOException e) {
+			file.delete();
+			e.printStackTrace();
+		} finally {
+			try {
+				fileOutputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	public static Bitmap mergeImageInMiddle(Bitmap b1, Bitmap b2) {
+		if (!b1.isMutable()) { // 设置图片为背景为透明
+			b1 = b1.copy(Bitmap.Config.ARGB_8888, true);
+		}
+		Paint paint = new Paint();
+		Canvas canvas = new Canvas(b1);
+		int b1w = b1.getWidth();
+		int b1h = b1.getHeight();
+		int b2w = b2.getWidth();
+		int b2h = b2.getHeight();
+		int bx = (b1w - b2w) / 2;
+		int by = (b1h - b2h) / 2;
+		canvas.drawBitmap(b2, bx, by, paint);// 叠加新图b2 并且居中
+		canvas.save(Canvas.ALL_SAVE_FLAG);
+		canvas.restore();
+		return b1;
+	}
+
+	/**
+	 * 图片合并 上下结构
+	 * 
+	 * @param b1
+	 * @param b2
+	 * @return
+	 */
+	public static Bitmap mergeImageUpDown(Bitmap b1, Bitmap b2) {
+		int b1w = b1.getWidth();
+		int b1h = b1.getHeight();
+		int b2h = b2.getHeight();
+
+		Bitmap bmp = Bitmap.createBitmap(b1w, b1h + b2h, Config.ARGB_8888);
+
+		Paint paint = new Paint();
+		Canvas canvas = new Canvas(bmp);
+		canvas.drawBitmap(b1, 0, 0, paint);
+		canvas.drawBitmap(b2, 0, b1h, paint);
+		canvas.save(Canvas.ALL_SAVE_FLAG);
+		canvas.restore();
+		b1.recycle();
+		b2.recycle();
+		return bmp;
+	}
+
+	public static void startImageCut(Fragment context, int picWidth,
+			int picHeight, int requestCode) {
+		startImageCut(context.getActivity(), picWidth, picHeight, requestCode);
+	}
+
+	public static void startImageCut(Fragment context, int picWidth,
+			int picHeight, int requestCode, String temp) {
+		Intent intent = new Intent(context.getActivity(),
+				ImageCutChooserActivity.class);
+		intent.putExtra("width", picWidth);
+		intent.putExtra("height", picHeight);
+		if (temp != null)
+			intent.putExtra("temp", temp);
+		context.startActivityForResult(intent, requestCode);
+	}
+
+	public static void startImageCut(Activity context, int picWidth,
+			int picHeight, int requestCode) {
+		startImageCut(context, picWidth, picHeight, requestCode, null);
+	}
+
+	public static void startImageCut(Activity context, int picWidth,
+			int picHeight, int requestCode, String temp) {
+		Intent intent = new Intent(context, ImageCutChooserActivity.class);
+		intent.putExtra("width", picWidth);
+		intent.putExtra("height", picHeight);
+		if (temp != null)
+			intent.putExtra("temp", temp);
+		context.startActivityForResult(intent, requestCode);
+	}
+
 }
