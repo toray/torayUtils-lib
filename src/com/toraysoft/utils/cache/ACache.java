@@ -861,13 +861,18 @@ public class ACache {
 		/*
 		 * Bitmap �?byte[]
 		 */
-		private static byte[] Bitmap2Bytes(Bitmap bm) {
+		private static byte[] Bitmap2Bytes(Bitmap bm){
 			if (bm == null) {
 				return null;
 			}
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
-			return baos.toByteArray();
+			try{
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
+				return baos.toByteArray();
+			}catch(Throwable e){
+				
+			}
+			return null;
 		}
 
 		/*
