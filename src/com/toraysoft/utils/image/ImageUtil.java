@@ -531,7 +531,39 @@ public class ImageUtil {
 			e.printStackTrace();
 		} finally {
 			try {
-				fileOutputStream.close();
+				if(fileOutputStream != null){
+					fileOutputStream.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	
+	public static String saveImageBitmap(Bitmap bitmap, String path) {
+		File file = new File(path);
+		FileOutputStream fileOutputStream = null;
+		try {
+			fileOutputStream = new FileOutputStream(file);
+			if (bitmap != null) {
+				if (bitmap.compress(Bitmap.CompressFormat.PNG, 100,
+						fileOutputStream)) {
+					fileOutputStream.flush();
+					// fileOutputStream.close();
+					return path;
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			file.delete();
+			e.printStackTrace();
+		} finally {
+			try {
+				if(fileOutputStream != null){
+					fileOutputStream.close();
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -82,6 +83,34 @@ public class AppManager {
 		return CHANNEL_OFFICIAL;
 	}
 	
+	public String getMetadata(Context context, String key){
+		try {
+			return getApplicationMetadata(context, context.getPackageName(), key);
+		} catch (Exception e) {
+		}
+		return "";
+	}
+	
+	public boolean isAppExists(Context context, String packageName) {
+		try {
+			PackageInfo mPackageInfo = context.getPackageManager()
+					.getPackageInfo(packageName, 0);
+			if (mPackageInfo != null) {
+				return true;
+			}
+		} catch (NameNotFoundException e) {
+//			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public void openApp(Context context,String packageName){
+		if(!isAppExists(context, packageName)) return;
+		Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+		context.startActivity(intent);
+	}
+	
+	@SuppressWarnings("deprecation")
 	@SuppressLint("NewApi")
 	public void copyText(Context context,String content)  
 	{  

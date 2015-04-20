@@ -23,6 +23,10 @@ public class ConfigManager {
 		}
 		return mConfigManager;
 	}
+	
+	public void init(Context context) {
+		this.init(context, "", 0);
+	}
 
 	public void init(Context context, String dbName, int dbVerion) {
 		this.isInit = true;
@@ -30,10 +34,11 @@ public class ConfigManager {
 		this.dbName = dbName;
 		this.dbVerion = dbVerion;
 		SharedPreManager.get().init(mContext);
+		UIManager.get().init(mContext);
 	}
 
 	public void setDebug(boolean isDebug) {
-		this.isDebug = false;
+		this.isDebug = isDebug;
 	}
 
 	public Context getContext() {
@@ -55,6 +60,10 @@ public class ConfigManager {
 			throw new IllegalArgumentException("didn't init config");
 		}
 		return this.dbVerion;
+	}
+	
+	public boolean isDebug(){
+		return isDebug;
 	}
 
 }

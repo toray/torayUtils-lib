@@ -25,6 +25,7 @@ public class SharedPreManager {
 	SharedPreferences mSysSharedPreferences;
 
 	static final String APP_LAST_VERSIONCODE = "app_last_versioncode";
+	static final String APP_SHOW_GUIDE = "app_show_guide";
 	final static String CONFIG_USER_FLAG = MD5.md5("user");
 
 	private SharedPreManager() {
@@ -115,6 +116,14 @@ public class SharedPreManager {
 	
 	public void setOpVal(String key,String value){
 		getSharedPreferences(FLAG_SP_ONLINE_PARAMS).edit().putString(key, value).commit();
+	}
+	
+	public boolean isShowGuide(){
+		return getSharedPreferences(FLAG_SP_SYS).getBoolean(APP_SHOW_GUIDE, false);
+	}
+	
+	public void setShowGuide(){
+		getSharedPreferences(FLAG_SP_SYS).edit().putBoolean(APP_SHOW_GUIDE, true).commit();
 	}
 
 }

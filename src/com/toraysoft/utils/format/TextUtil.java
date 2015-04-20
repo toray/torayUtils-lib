@@ -1,5 +1,6 @@
 package com.toraysoft.utils.format;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,4 +16,9 @@ public class TextUtil {
 		return list;
 	}
 	
+	
+	public static String getBigDecimalText(String val){
+		BigDecimal bigDecimal = new BigDecimal(val);  
+        return bigDecimal.toString();  
+	}
 }
